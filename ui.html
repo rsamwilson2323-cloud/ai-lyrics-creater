@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real AI Lyrics Generator</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Segoe UI,system-ui;
+  background:radial-gradient(circle at top,#141a33,#070b18);
+  color:#fff;
+}
+
+.container{
+  max-width:720px;
+  margin:40px auto;
+  padding:20px;
+}
+
+h1{
+  margin-bottom:6px;
+  color:#8b5cf6;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.sub{
+  color:#9aa4ff;
+  font-size:14px;
+  margin-bottom:20px;
+}
+
+label{
+  font-size:14px;
+  margin-top:10px;
+  display:block;
+}
+
+select,button,textarea{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  font-size:15px;
+  padding:14px;
+  margin-top:8px;
+}
+
+select{
+  background:#fff;
+  color:#000;
+}
+
+button.generate{
+  background:#8b5cf6;
+  color:#fff;
+  font-weight:700;
+  margin-top:14px;
+  cursor:pointer;
+}
+
+button.copy{
+  background:#22c55e;
+  color:#fff;
+  font-weight:700;
+  margin-top:14px;
+  cursor:pointer;
+}
+
+/* 🔽 SMALLER LYRICS BOX */
+textarea{
+  height:180px;              /* 👈 reduced size */
+  background:#050a16;
+  color:#c7d2fe;
+  resize:none;
+  margin-top:14px;
+  line-height:1.5;
+}
+
+.status{
+  font-size:13px;
+  margin-top:10px;
+  color:#a5b4fc;
+}
+
+.status.error{
+  color:#ff6b6b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🤖 Real AI Lyrics Generator</h1>
+<div class="sub">Groq LLaMA 3 • New lyrics every click</div>
+
+<label>Mood</label>
+<select id="mood">
+  <option value="romantic">Romantic</option>
+  <option value="sad">Sad</option>
+  <option value="happy">Happy</option>
+  <option value="motivational">Motivational</option>
+</select>
+
+<button class="generate" onclick="generateLyrics()">✨ Generate AI Lyrics</button>
+
+<textarea id="output" placeholder="AI lyrics will appear here..."></textarea>
+
+<button class="copy" onclick="copyLyrics()">📋 Copy Lyrics</button>
+
+<div class="status" id="status">Idle</div>
+
+</div>
+
+<script>
+async function generateLyrics(){
+  const mood = document.getElementById("mood").value;
+  const out = document.getElementById("output");
+  const status = document.getElementById("status");
+
+  status.className="status";
+  status.innerText="AI is thinking...";
+  out.value="";
+
+  try{
+    const res = await fetch("/lyrics",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({mood})
+    });
+
+    if(!res.ok) throw new Error("Server error");
+
+    const data = await res.json();
+    out.value = data.lyrics;
+    status.innerText="Lyrics generated ✔";
+  }
+  catch(e){
+    status.className="status error";
+    status.innerText="Error generating lyrics";
+  }
+}
+
+function copyLyrics(){
+  const t=document.getElementById("output");
+  t.select();
+  document.execCommand("copy");
+}
+</script>
+
+</body>
+</html>
